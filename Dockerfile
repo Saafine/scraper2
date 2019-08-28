@@ -11,6 +11,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 RUN npm install puppeteer
+RUN npm build
 RUN apt-get update && apt-get install -yq libgconf-2-4
 # Install latest chrome dev package and fonts to support major
 # charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
@@ -41,5 +42,5 @@ USER pptruser
 # Bundle app source
 COPY . .
 EXPOSE 3000
-CMD [ "npm", "start" ]
+CMD [ "npm", "start:prod" ]
 # Hit "esc" then type ":wq" and hit "enter"
