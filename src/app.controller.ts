@@ -13,7 +13,7 @@ export interface Estate {
 
 @Controller()
 export class AppController {
-    private connection: Connection = this.mysqlConnect();
+    private connection: Connection;
 
     constructor(private readonly gumtreeScraperService: GumtreeScraperService, private readonly scraperService: ScraperService) {
     }
@@ -21,6 +21,18 @@ export class AppController {
     @Get()
     getStatus(): 'ok' {
         return 'ok';
+    }
+
+    @Get('init')
+    init() {
+        try {
+            this.connection = this.mysqlConnect();
+            return 'ok';
+        } catch (e) {
+            // tslint:disable-next-line:no-console
+            console.error(e);
+            return 'fail';
+        }
     }
 
     @Get('new')
