@@ -42,5 +42,5 @@ USER pptruser
 # Bundle app source
 COPY . .
 EXPOSE 3000
-CMD [ "npm", "start:prod" ]
+# CMD [ "npm", "start:prod" ]
 # Hit "esc" then type ":wq" and hit "enter"
