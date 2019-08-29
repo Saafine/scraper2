@@ -19,20 +19,13 @@ export class AppController {
     }
 
     @Get()
-    getStatus(): 'ok' {
-        return 'ok';
+    getStatus(): string {
+        return 'ok: 3';
     }
 
     @Get('init')
     init() {
-        try {
-            this.connection = this.mysqlConnect();
-            return 'ok';
-        } catch (e) {
-            // tslint:disable-next-line:no-console
-            console.error(e);
-            return 'fail';
-        }
+        this.connection = this.mysqlConnect();
     }
 
     @Get('new')
@@ -89,11 +82,11 @@ export class AppController {
             database: 'db',
             port: 3306,
         });
-
+        connection.on('error', (error) => {
+            console.error(error);
+        });
         connection.connect();
-
         return connection;
-        // connection.end();
     }
 
     // 1. get newest titles + urls
