@@ -41,7 +41,9 @@ USER pptruser
 # RUN npm install --only=production
 # Bundle app source
 COPY . .
-EXPOSE 3000
+
+# Exposed inside docker compose
+#EXPOSE 3000
 
 CMD [ "npm", "start" ]
 # Hit "esc" then type ":wq" and hit "enter"
