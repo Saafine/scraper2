@@ -35,7 +35,7 @@ RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && chown -R pptruser:pptruser ./node_modules
 
 # Run everything after as non-privileged user.
-USER pptruser
+#USER pptruser
 
 # If you are building your code for production
 # RUN npm install --only=production
