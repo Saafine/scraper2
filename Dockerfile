@@ -2,16 +2,16 @@
 
 # Hit "i" to get into insert-mode
 # Copy below in text editor
-FROM node
+#FROM node
 # Create app directory
-WORKDIR /usr/src/app
+#WORKDIR /usr/src/app
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
-COPY package*.json ./
-RUN npm install
+#COPY package*.json ./
+#RUN npm install
 #RUN npm install puppeteer
-RUN npm build
+#RUN npm build
 #RUN apt-get update && apt-get install -yq libgconf-2-4
 # Install latest chrome dev package and fonts to support major
 # charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
@@ -40,10 +40,18 @@ RUN npm build
 # If you are building your code for production
 #RUN npm install --only=production
 # Bundle app source
-COPY . .
+#COPY . .
 
 # Exposed inside docker compose
 #EXPOSE 3000
 
-CMD [ "npm", "run", "start:prod" ]
+#CMD [ "npm", "run", "start:prod" ]
 # Hit "esc" then type ":wq" and hit "enter"
+FROM node
+
+WORKDIR /app
+COPY package*.json /app/
+COPY ./ /app/
+RUN npm run build
+
+CMD [ "npm", "run", "start:prod" ]
