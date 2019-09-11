@@ -38,12 +38,12 @@ RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
 #USER pptruser
 
 # If you are building your code for production
-# RUN npm install --only=production
+RUN npm install --only=production
 # Bundle app source
 COPY . .
 
 # Exposed inside docker compose
 #EXPOSE 3000
 
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "start:prod" ]
 # Hit "esc" then type ":wq" and hit "enter"
