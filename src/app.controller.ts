@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { JSDOM } from 'jsdom';
-import { GUMTREE_MOCK } from './gumtree.mock';
 import { Connection, createConnection } from 'mysql';
 import { GumtreeScraperService } from './gumtree.service';
 import { ScraperService } from './scraper.service';
@@ -75,12 +74,13 @@ export class AppController {
     }
 
     private mysqlConnect(): Connection {
+        const PORT = process.env.DATABASE_PORT ? Number(process.env.DATABASE_PORT) : undefined;
         const connection = createConnection({
             host: process.env.DATABASE_HOST || '127.0.0.1',
-            user: 'root',
-            password: 'password',
-            database: 'db',
-            port: 3306,
+            user: process.env.DATABASE_USER || 'root',
+            password: process.env.DATABASE_PASSWORD || 'password',
+            database: process.env.DATABASE_NAME || 'db',
+            port: PORT || 3306
         });
         connection.on('error', (error) => {
             console.error(error);
