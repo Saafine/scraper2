@@ -23,11 +23,8 @@ RUN apt-get update && apt-get install -y wget --no-install-recommends \
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
     && chown -R pptruser:pptruser /home/pptruser \
-    && chown -R pptruser:pptruser ./node_modules
-
-# UNSAFE, testing only
-RUN mkdir -p /etc/letsencrypt
-RUN chmod -R 777 /etc/letsencrypt
+    && chown -R pptruser:pptruser ./node_modules \
+    && chown -R pptruser:pptruser /etc/letsencrypt\
 
 COPY ./ /app/
 RUN npm run build
