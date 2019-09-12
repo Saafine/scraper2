@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  scraper:
+    build: .
+    volumes:
+      - ./docker:/etc/letsencrypt
+    environment:
+      KEY_PATH: /etc/letsencrypt/test1.md
+      CERT_PATH: /etc/letsencrypt/test2.md
+    ports:
+      - 80:80
+      - 443:443
+
