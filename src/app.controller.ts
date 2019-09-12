@@ -29,8 +29,10 @@ export class AppController {
 
     @Get('new')
     async getTitles(): Promise<Estate[]> {
+        console.log('Fetching HTML: LOADING');
         const html = await this.scraperService
             .getHTML('https://www.gumtree.pl/s-mieszkania-i-domy-sprzedam-i-kupie/warszawa/mieszkanie/v1c9073l3200008a1dwp1?pr=,550000&df=ownr');
+        console.log('Fetching HTML: SUCCESS');
         // const html = GUMTREE_MOCK;
         const doc = new JSDOM(html).window.document;
         const estates = this.gumtreeScraperService.scrapeEstates(doc); // TODO [P. Labus] call scraper service instead

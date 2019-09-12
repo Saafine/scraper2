@@ -21,17 +21,17 @@ RUN apt-get update && apt-get install -y wget --no-install-recommends \
 
 # TEST ONLY, UNSAFE ETC/LETSENCRYPT
 # Add user so we don't need --no-sandbox.
-RUN mkdir -p /etc/letsencrypt/live/scrapulec.eu
-RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
-    && mkdir -p /home/pptruser/Downloads \
-    && chown -R pptruser:pptruser /home/pptruser \
-    && chown -R pptruser:pptruser ./node_modules \
-    && chown -R pptruser:pptruser /etc/letsencrypt/live/scrapulec.eu
+#RUN mkdir -p /etc/letsencrypt/live/scrapulec.eu
+#RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
+#    && mkdir -p /home/pptruser/Downloads \
+#    && chown -R pptruser:pptruser /home/pptruser \
+#    && chown -R pptruser:pptruser ./node_modules \
+#    && chown -R pptruser:pptruser /etc/letsencrypt/live/scrapulec.eu
 
 COPY ./ /app/
 RUN npm run build
 
 # Run everything after as non-privileged user.
-USER pptruser
+#USER pptruser
 
 CMD [ "npm", "run", "start:prod" ]
