@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { GumtreeScraperService } from './gumtree.service';
 import { ScraperService } from './scraper.service';
+import { DatabaseService } from './database.service';
+import { LoggingService } from './logging.service';
+import { WatcherController } from './watcher.controller';
 
 @Module({
   imports: [],
-  controllers: [AppController],
-  providers: [GumtreeScraperService, ScraperService],
+  controllers: [AppController, WatcherController],
+  providers: [ScraperService, DatabaseService, LoggingService],
 })
-export class AppModule {}
+export class AppModule {
+}
