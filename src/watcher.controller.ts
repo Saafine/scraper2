@@ -15,10 +15,10 @@ interface WatchDTO {
   items: WatchItem[];
 }
 
-interface ExtractedItem {
-  label: string;
-  values: any[];
-}
+// interface ExtractedItem {
+//   label: string;
+//   values: any[];
+// }
 
 @Controller('watch')
 export class WatcherController {
