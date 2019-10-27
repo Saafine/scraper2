@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { launch } from 'puppeteer';
+import { Browser, launch, Page } from 'puppeteer';
 import { LoggingService } from './logging.service';
 import { head } from 'lodash';
-import { memMonitor } from './utils/memory.utils';
 import { MemoryService } from './memory.service';
 
 interface ScrapeJob<T> {
@@ -12,23 +11,21 @@ interface ScrapeJob<T> {
     url: string;
 }
 
-const MAX_SIMULTANEOUS_JOBS = 1;
-// const MAX_JOB_PENDING_TIME = 5000;
-
 @Injectable()
 export class ScraperService {
     queue: Array<ScrapeJob<void>> = [];
+    browser: Browser;
+    maxSimultaneousJobs = 3;
 
     constructor(private loggingService: LoggingService, private memoryService: MemoryService) {
     }
 
     async getHTML(url: string): Promise<any> {
+        this.setJobLimit();
         // if stuck, then CLEAR // TODO [P. Labus]
         this.loggingService.log('Fetching HTML: LOADING');
         try {
-            if (this.memoryService.isMemoryOverloaded()) {
-                await this.queueJob(url);
-            }
+            await this.queueJob(url);
             const html = await this.scrapeHTML(url);
             this.loggingService.log('Fetching HTML: SUCCESS');
             return html;
@@ -37,17 +34,37 @@ export class ScraperService {
             return null;
         } finally {
             this.clearQueueFromJob(url);
+            this.finishScraping();
         }
     }
 
+    private async getPage(): Promise<Page> {
+        if (this.browser) return await this.browser.newPage();
+
+        this.browser = await launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+        this.browser.on('disconnected', () => {
+            this.loggingService.log('Browser disconnected');
+            this.browser = null;
+        });
+
+        return await this.browser.newPage();
+    }
+
+    private finishScraping() {
+        if (this.queue.length !== 0) return;
+        this.loggingService.log('Closing browser');
+        this.browser.close();
+    }
+
     private async scrapeHTML(url): Promise<string> {
-        const browser = await launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-        const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36');
+        const page = await this.getPage();
         await page.goto(url);
         const result = await page.evaluate(() => document.body.innerHTML);
-        browser.close();
         return result;
+    }
+
+    private setJobLimit(): void {
+        this.maxSimultaneousJobs = this.memoryService.isMemoryOverloaded() ? 1 : 3;
     }
 
     private clearQueueFromJob(url: string): void {
@@ -80,7 +97,7 @@ export class ScraperService {
     }
 
     private canRunJob(): boolean {
-        return this.queue.length <= MAX_SIMULTANEOUS_JOBS;
+        return this.queue.length <= this.maxSimultaneousJobs;
     }
 
     // private handleStuckJob(job: ScrapeJob<void>): void {
@@ -95,7 +112,7 @@ export class ScraperService {
 
     private queueJob(url: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            const jobIndex = this.queueJob.length;
+            const jobIndex = this.queue.length;
             this.loggingService.log(`Adding Request to Queue (${ jobIndex })... ( ${ url } )`);
             const job: ScrapeJob<void> = {
                 url,

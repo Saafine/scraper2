@@ -17,7 +17,7 @@ export class WatcherController {
   @Post()
   async watch(@Body() watch: WatchDTO): Promise<QuerySearchResponse> {
     const html = await this.scraperService.getHTML(watch.url);
-    if (!html) throw new HttpException(`Fail to scrape: ${watch}`, HttpStatus.SERVICE_UNAVAILABLE);
+    if (!html) throw new HttpException(`Fail to scrape: ${watch && watch.url}`, HttpStatus.SERVICE_UNAVAILABLE);
     // const html = GUMTREE_MOCK;
     const document = new JSDOM(html).window.document;
     return await this.extractWatchedItems(document, watch);
