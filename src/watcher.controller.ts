@@ -1,9 +1,9 @@
 /* tslint:disable:curly */
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
 import { JSDOM } from 'jsdom';
 import { zip } from 'lodash';
 import { getHashFromObj } from './utils/hashing.utils';
-import { GUMTREE_MOCK } from './mocks/gumtree.mock';
+// import { GUMTREE_MOCK } from './mocks/gumtree.mock';
 import { DatabaseService, DB_TABLE_IGNORE_COLUMN_VALUES_HASH } from './database.service';
 import { IgnoredSearchResult, QueryConfigurationValue, QuerySearchIgnoreDTO, QuerySearchResponse, WatchDTO } from './app.model';
 import { ScraperService } from './scraper.service';
@@ -15,8 +15,9 @@ export class WatcherController {
   }
 
   @Post()
-  async watch(@Body() watch: WatchDTO) { // TODO [P. Labus] return type
+  async watch(@Body() watch: WatchDTO): Promise<QuerySearchResponse> {
     const html = await this.scraperService.getHTML(watch.url);
+    if (!html) throw new HttpException(`Fail to scrape: ${watch}`, HttpStatus.SERVICE_UNAVAILABLE);
     // const html = GUMTREE_MOCK;
     const document = new JSDOM(html).window.document;
     return await this.extractWatchedItems(document, watch);
