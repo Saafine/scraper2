@@ -11,12 +11,16 @@ interface ScrapeJob<T> {
     url: string;
 }
 
+const MAX_SIMULTANEOUS_JOBS = 3;
+const MIN_SIMULTANEOUS_JOBS = 1;
+
 @Injectable()
 export class ScraperService {
     queue: Array<ScrapeJob<void>> = [];
     browser: Browser;
-    maxSimultaneousJobs = 3;
+    maxSimultaneousJobs = MAX_SIMULTANEOUS_JOBS;
 
+    // TODO [P. Labus] create queue service
     constructor(private loggingService: LoggingService, private memoryService: MemoryService) {
     }
 
@@ -51,20 +55,23 @@ export class ScraperService {
     }
 
     private finishScraping() {
-        if (this.queue.length !== 0) return;
+        if (!this.allJobsDone()) return;
         this.loggingService.log('Closing browser');
         this.browser.close();
+    }
+
+    private allJobsDone(): boolean {
+        return this.queue.length === 0;
     }
 
     private async scrapeHTML(url): Promise<string> {
         const page = await this.getPage();
         await page.goto(url);
-        const result = await page.evaluate(() => document.body.innerHTML);
-        return result;
+        return await page.evaluate(() => document.body.innerHTML);
     }
 
     private setJobLimit(): void {
-        this.maxSimultaneousJobs = this.memoryService.isMemoryOverloaded() ? 1 : 3;
+        this.maxSimultaneousJobs = this.memoryService.isMemoryOverloaded() ? MIN_SIMULTANEOUS_JOBS : MAX_SIMULTANEOUS_JOBS;
     }
 
     private clearQueueFromJob(url: string): void {
@@ -88,7 +95,6 @@ export class ScraperService {
             nextRequest.status = 'PENDING';
             nextRequest.pendingTimestamp = new Date().getTime();
             nextRequest.resolveFn();
-            // this.handleStuckJob(nextRequest);
         }
     }
 
@@ -100,20 +106,10 @@ export class ScraperService {
         return this.queue.length <= this.maxSimultaneousJobs;
     }
 
-    // private handleStuckJob(job: ScrapeJob<void>): void {
-    //     setTimeout(() => {
-    //         const jobFound = this.queue.find((queueJob) => queueJob === job);
-    //         if (jobFound) {
-    //             this.loggingService.log(`(TIMEOUT) Killing job ( ${ job.url } )`);
-    //             jobFound.rejectFn();
-    //         }
-    //     }, MAX_JOB_PENDING_TIME);
-    // }
-
     private queueJob(url: string): Promise<void> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const jobIndex = this.queue.length;
-            this.loggingService.log(`Adding Request to Queue (${ jobIndex })... ( ${ url } )`);
+            this.loggingService.log(`Adding Request to Queue (${ jobIndex })...`);
             const job: ScrapeJob<void> = {
                 url,
                 resolveFn: resolve,

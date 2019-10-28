@@ -1,7 +1,7 @@
 /* tslint:disable:no-console */
 import { freemem, totalmem } from 'os';
 
-export function memMonitor(target, key, descriptor) {
+export function memMonitor(target, key, descriptor): MethodDecorator {
     // save a reference to the original method this way we keep the values currently in the
     // descriptor and don't overwrite what another decorator might have done to the descriptor.
     if (descriptor === undefined) {
