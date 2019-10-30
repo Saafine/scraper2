@@ -39,7 +39,7 @@ export class DatabaseService {
         this.loggingService.log('Connecting to database...');
         const PORT = process.env.DATABASE_PORT ? Number(process.env.DATABASE_PORT) : undefined;
         this.connection = createConnection({
-            host: process.env.DATABASE_HOST || '192.168.99.100',
+            host: process.env.DATABASE_HOST || '127.0.0.1' || '192.168.99.100',
             user: process.env.DATABASE_USER || 'root',
             password: process.env.DATABASE_PASSWORD || 'password',
             database: process.env.DATABASE_NAME || 'db',
