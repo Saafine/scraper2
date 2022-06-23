@@ -24,7 +24,7 @@
     "@nestjs/core": "^6.0.0",
     "@nestjs/platform-express": "^6.0.0",
     "@types/jsdom": "^12.2.4",
-    "jsdom": "^15.1.1",
+    "jsdom": "^16.5.0",
     "lodash": "^4.17.15",
     "mysql": "github:mysqljs/mysql",
     "puppeteer": "^1.19.0",
